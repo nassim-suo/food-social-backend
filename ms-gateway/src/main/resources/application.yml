@@ -1,0 +1,29 @@
+server:
+  port: 80
+
+spring:
+  application:
+    name: ms-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          lower-case-service-id: true # 将服务名称转小写
+          enabled: true # 开启配置注册中心进行路由的功能
+      routes:  # 路由规则
+        - id: ms-diners
+          uri: lb://ms-diners  # 负载均衡
+          predicates:   # 配置断言规则
+            - Path=/hello/**
+
+
+
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
+  client:
+    service-url:
+      defaultZone: http://localhost:8080/eureka/
