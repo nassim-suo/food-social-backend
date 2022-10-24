@@ -16,7 +16,7 @@ spring:
           predicates:
             - Path=/diners/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=1   # 分割处理，只路由后半部分
 
         - id: ms-oauth2-server
           uri: lb://ms-oauth2-server
@@ -29,7 +29,7 @@ spring:
 
       secure:
         ignore:
-          urls: # 配置白名单路径
+          urls: # 配置白名单路径，需要放行的路径
             - /actuator/**
             - /auth/oauth/**
             - /diners/signin
