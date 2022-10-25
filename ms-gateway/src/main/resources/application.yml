@@ -27,17 +27,18 @@ spring:
 
 
 
-      secure:
-        ignore:
-          urls: # 配置白名单路径，需要放行的路径
-            - /actuator/**
-            - /auth/oauth/**
-            - /diners/signin
-            - /diners/send
-            - /diners/checkPhone
-            - /diners/register
-            - /seckill/add
-            - /restaurants/**
+secure:
+  ignore:
+    urls: # 配置白名单路径，需要放行的路径
+      - /actuator/**
+      - /auth/oauth/**
+      - /diners/signin
+      - /auth/**
+      - /diners/send
+      - /diners/checkPhone
+      - /diners/register
+      - /seckill/add
+      - /restaurants/**
 
 
 
@@ -50,3 +51,8 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8080/eureka/
+
+
+logging:
+  pattern:
+    console: '%d{2100-01-01 13:14:00.666} [%thread] %-5level %logger{50} - %msg%n'
