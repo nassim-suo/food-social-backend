@@ -36,6 +36,7 @@ public class SendVerifyCodeService {
 
         // 调用短信服务发送短信这里需要调运云服务，这里不再写，假设已经发送
         // 发送成功，将验证码保存到redis，失效时间60s
+        // 通过拼接得到redis 的key 类似于: verify_code:18111112222
         String key = RedisKeyConstant.verify_code.getKey() + phone;
         redisTemplate.opsForValue().set(key,code,60, TimeUnit.SECONDS);
     }
@@ -52,5 +53,17 @@ public class SendVerifyCodeService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 根据手机号获取验证码
+     * @param phone
+     * @return
+     */
+    public String getCodeByPhone(String phone){
+        // 拼接 前缀 + phone 得到redis中的key
+        String key = RedisKeyConstant.verify_code.getKey() + phone;
+        String code = redisTemplate.opsForValue().get(key);
+        return code;
     }
 }

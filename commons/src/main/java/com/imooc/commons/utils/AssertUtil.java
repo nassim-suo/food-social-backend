@@ -5,7 +5,8 @@ import com.imooc.commons.constant.ApiConstant;
 import com.imooc.commons.exception.ParameterException;
 
 /**
- * 断言工具类
+ * 断言工具类，我们使用断言工具进行判断，如果不成立就会抛出ParameterException(msg)异常，
+ * 这个异常会被后续通过 @ExceptionHandler 处理  https://www.jianshu.com/p/12e1a752974d
  */
 public class AssertUtil {
 

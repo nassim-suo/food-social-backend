@@ -2,12 +2,17 @@ package com.imooc.diners.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.digest.DigestUtil;
 import com.imooc.commons.constant.ApiConstant;
 import com.imooc.commons.model.domain.ResultInfo;
+import com.imooc.commons.model.dto.DinersDTO;
+import com.imooc.commons.model.pojo.Diners;
 import com.imooc.commons.utils.AssertUtil;
 import com.imooc.commons.utils.ResultInfoUtil;
 import com.imooc.diners.config.OAuth2ClientConfiguration;
 import com.imooc.diners.domain.OAuthDinerInfo;
+import com.imooc.diners.mapper.DinersMapper;
 import com.imooc.diners.vo.LoginDinerInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -36,6 +41,51 @@ public class DinersService {
     private String oauthServerName;
     @Resource
     private OAuth2ClientConfiguration oAuth2ClientConfiguration;
+    @Resource
+    private DinersMapper dinersMapper;
+    @Resource
+    private SendVerifyCodeService sendVerifyCodeService;
+
+    public ResultInfo register(DinersDTO dinersDTO,String path) {
+        // 参数非空校验
+        String username = dinersDTO.getUsername();
+        AssertUtil.isNotEmpty(username,"请输入用户名");
+        String password = dinersDTO.getPassword();
+        AssertUtil.isNotEmpty(password, "请输入密码");
+        String phone = dinersDTO.getPhone();
+        AssertUtil.isNotEmpty(phone, "请输入手机号");
+        String verifyCode = dinersDTO.getVerifyCode();
+        AssertUtil.isNotEmpty(verifyCode, "请输入验证码");
+        // 获取验证码
+        String code = sendVerifyCodeService.getCodeByPhone(phone);
+        // 验证码是否已经过期
+        AssertUtil.isNotEmpty(code,"验证码已过期请重新发送");
+        // 验证码一致性校验
+        AssertUtil.isTrue(!dinersDTO.getVerifyCode().equals(code),"验证码不一致请重新输入");
+        // 用户名是否已注册
+        Diners diners = dinersMapper.selectByUsername(username);
+        AssertUtil.isTrue(diners!=null,"该用户名已存在，请重新输入");
+        // 注册
+        // 密码加密 通过hutool下的MD5工具加密
+        // trim:Returns a string whose value is this string, with any leading and trailing whitespace removed.
+        dinersDTO.setPassword(DigestUtil.md5Hex(password.trim()));
+        dinersMapper.save(dinersDTO);
+        // 自动登录
+        return signIn(username.trim(),password.trim(),path);
+    }
+
+
+    /**
+     * 校验手机号是否已经注册
+     * @param phone
+     */
+    public void checkPhoneIsRegistered(String phone){
+        AssertUtil.isNotEmpty(phone,"手机号不能为空");
+        Diners diners = dinersMapper.selectByPhone(phone);
+        AssertUtil.isTrue(diners == null,"改手机号未注册");
+        AssertUtil.isTrue(diners.getIsValid() == 0,"该用户已被锁定");
+    }
+
 
 
     /**

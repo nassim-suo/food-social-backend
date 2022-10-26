@@ -1,6 +1,7 @@
 package com.imooc.diners.controller;
 
 import com.imooc.commons.model.domain.ResultInfo;
+import com.imooc.commons.model.dto.DinersDTO;
 import com.imooc.commons.utils.ResultInfoUtil;
 import com.imooc.diners.service.DinersService;
 import io.swagger.annotations.Api;
@@ -25,6 +26,27 @@ public class DinersController {
 
     @Resource
     private HttpServletRequest request;
+
+    /**
+     * 注册
+     * @param dinersDTO
+     * @return
+     */
+    @PostMapping("register")
+    public ResultInfo register(@RequestBody DinersDTO dinersDTO){
+        return dinersService.register(dinersDTO,request.getServletPath());
+    }
+
+    /**
+     * 校验手机号是否已注册
+     * @param phone
+     * @return
+     */
+    @GetMapping("checkPhone")
+    public ResultInfo checkPhone(String phone){
+        dinersService.checkPhoneIsRegistered(phone);
+        return ResultInfoUtil.buildSuccess(request.getServletPath());
+    }
 
 
     /**
